@@ -18,6 +18,10 @@ let data = {
     x: 2,
     y: 2,
     angle: 90,
+    speed: {
+      movement: 0.5,
+      rotation: 5.0,
+    },
   },
   map: [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -31,6 +35,12 @@ let data = {
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   ],
+  key: {
+    up: "KeyW",
+    down: "KeyS",
+    left: "KeyA",
+    right: "KeyD",
+  },
 };
 
 // Calculated data
@@ -64,6 +74,26 @@ function drawLine(x1, y1, x2, y2, cssColor) {
   screenContext.stroke();
 }
 
+document.addEventListener("keydown", (event) => {
+  let keyCode = event.code;
+
+  if (keyCode === data.key.up) {
+    let playerCos = Math.cos(degreesToRadians(data.player.angle));
+    let playerSin = Math.sin(degreesToRadians(data.player.angle));
+    data.player.x += playerCos;
+    data.player.y += playerSin;
+  } else if (keyCode === data.key.down) {
+    let playerCos = Math.cos(degreesToRadians(data.player.angle));
+    let playerSin = Math.sin(degreesToRadians(data.player.angle));
+    data.player.x -= playerCos;
+    data.player.y -= playerSin;
+  } else if (keyCode === data.key.left) {
+    data.player.angle -= data.player.speed.rotation
+  } else if (keyCode === data.key.right) {
+    data.player.angle += data.player.speed.rotation
+  }
+});
+
 // raycasting logic
 function rayCasting() {
   let rayAngle = data.player.angle - data.player.halfFov;
@@ -88,24 +118,41 @@ function rayCasting() {
       wall = data.map[Math.floor(ray.y)][Math.floor(ray.x)];
     }
 
+    let distance = Math.sqrt(
+      Math.pow(data.player.x - ray.x, 2) + Math.pow(data.player.y - ray.y, 2)
+    );
+
+    let wallHeight = Math.floor(data.screen.halfHeight / distance);
+
+    drawLine(
+      rayCount,
+      0,
+      rayCount,
+      data.screen.halfHeight - wallHeight,
+      "cyan"
+    );
+    drawLine(
+      rayCount,
+      data.screen.halfHeight - wallHeight,
+      rayCount,
+      data.screen.halfHeight + wallHeight,
+      "red"
+    );
+    drawLine(
+      rayCount,
+      data.screen.halfHeight + wallHeight,
+      rayCount,
+      data.screen.height,
+      "green"
+    );
+
     rayAngle += data.rayCasting.incrementAngle;
   }
-
-  let distance = Math.sqrt(
-    Math.pow(data.player.x - ray.x, 2) + Math.pow(data.player.y - ray.y, 2)
-  );
-
-  let wallHeight = Math.floor(data.screen.halfHeight / distance)
-
-  
 }
 
 function clearScreen() {
   screenContext.clearRect(0, 0, data.screen.width, data.screen.height);
 }
-
-// start
-main();
 
 // main loop
 function main() {
@@ -114,3 +161,6 @@ function main() {
     rayCasting();
   }, data.render.delay);
 }
+
+// start
+main();
