@@ -88,11 +88,13 @@ document.addEventListener("keydown", (event) => {
     data.player.x -= playerCos;
     data.player.y -= playerSin;
   } else if (keyCode === data.key.left) {
-    data.player.angle -= data.player.speed.rotation
+    data.player.angle -= data.player.speed.rotation;
   } else if (keyCode === data.key.right) {
-    data.player.angle += data.player.speed.rotation
+    data.player.angle += data.player.speed.rotation;
   }
 });
+
+
 
 // raycasting logic
 function rayCasting() {
@@ -121,6 +123,9 @@ function rayCasting() {
     let distance = Math.sqrt(
       Math.pow(data.player.x - ray.x, 2) + Math.pow(data.player.y - ray.y, 2)
     );
+
+    // fish eye fix!!!
+    distance = distance * Math.cos(degreesToRadians(rayAngle - data.player.angle))
 
     let wallHeight = Math.floor(data.screen.halfHeight / distance);
 
